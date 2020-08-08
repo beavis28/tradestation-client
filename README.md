@@ -59,7 +59,7 @@ Please open a new issue if you wish to contribute to this project.
 
 ## Authors
 
-* [Sam Bragg](github.com/sambragg)
+* [Sam Bragg](https://github.com/sambragg)
 
 ## License
 

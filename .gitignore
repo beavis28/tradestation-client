@@ -145,3 +145,5 @@ tradestation-token.json
 
 # macOS system files (grrr...)
 .DS_Store
+
+*.csv

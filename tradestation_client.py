@@ -75,11 +75,12 @@ class Tradestation:
         cash_transactions = self.session.get(cash_transactions_url + cash_transactions_params).json()['Results']
         
         for cash_transaction in cash_transactions:
-            cash_transaction['TradeDate'] = date
-            cash_transaction['Type'] = 'Cash Journal'
-            cash_transaction['Description'] = cash_transaction['Description'].rstrip()
+            if self.include_transaction(cash_transaction):
+                cash_transaction['TradeDate'] = date
+                cash_transaction['Type'] = 'Cash Journal'
+                cash_transaction['Description'] = cash_transaction['Description'].rstrip()
 
-            transactions.append(cash_transaction)
+                transactions.append(cash_transaction)
         
         return transactions
     

@@ -12,6 +12,7 @@ requests-oauthlib = "*"
 pytz = "*"
 python-dateutil = "*"
 requests-html = "*"
+pyotp = "*"
 
 [requires]
 python_version = "3.8"

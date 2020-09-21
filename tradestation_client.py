@@ -1,5 +1,7 @@
 import json
 import os.path
+import pyotp
+import time
 
 from oauthlib.common import to_unicode
 from requests_html import HTMLSession
@@ -8,10 +10,17 @@ from requests_oauthlib import OAuth2Session
 
 class Tradestation:
     
-    def __init__(self, username, password, client_id, client_secret, login_secrets):
+    def __init__(self, username, password, client_id, client_secret, login_secrets, otp_secret=None):
         self.username = username
         self.password = password
         self.secrets = login_secrets
+        
+        try:
+            _ = pyotp.TOTP(otp_secret).now()                 # See if we can get a code first...
+            time.sleep((30 - time.gmtime().tm_sec % 30) + 1) # then, wait until the next time OTP changes
+            self.otp = pyotp.TOTP(otp_secret).now()
+        except TypeError:
+            self.otp = input("Enter 2FA code from your authenticator app: ")
 
         self.client_id = client_id
         self.client_secret = client_secret
@@ -76,6 +85,7 @@ class Tradestation:
         
         for cash_transaction in cash_transactions:
             if self.include_transaction(cash_transaction):
+                cash_transaction['AccountId'] = account['Name']
                 cash_transaction['TradeDate'] = date
                 cash_transaction['Type'] = 'Cash Journal'
                 cash_transaction['Description'] = cash_transaction['Description'].rstrip()
@@ -153,7 +163,7 @@ class Tradestation:
         return self.oauth.get(self.api_url + '/users/' + self.username + '/accounts').json()
 
     def include_transaction(self, transaction):
-        exclusions = ['transfer', 'currency conversion', 'wire in']
+        exclusions = ['TRANSFER', 'CURRENCY CONVERSION', 'WIRE IN']
         description = transaction['Description'].upper()
         return not any(substr in description for substr in exclusions)
 

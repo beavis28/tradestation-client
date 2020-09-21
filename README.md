@@ -2,7 +2,20 @@
 
 Python client for [Tradestation's API](https://tradestation.github.io/api-docs/) 🐍
 
-This project is nowhere-near completed and is a continual work-in-progress, this repo mainly exists to demonstrate to the world that I can indeed write code 😁
+This project is nowhere-near completed and is a continual work-in-progress!
+
+## Features
+
+* Tradestation WebAPI:
+  * Oauth token fetching & refreshing
+  * Last price quotes
+  * List account orders
+  * List account positions
+* Account transactions API 
+  * Compatible with new 2FA requirements - 21/09/20
+  * Automated scraping of each account's transactions for a given date
+
+---
 
 ## Getting Started
 
@@ -23,8 +36,6 @@ pipenv install
 ```
 
 ### Usage
-
-
 
 ```python
 from tradestation-client import Tradestation
@@ -47,7 +58,8 @@ ts = Tradestation(
             "QuestionId": "33",
             "SecurityAnswer": "Rover"
         }
-    }
+    },
+    otp_secret='MY32BITSECRET'
 )
 
 ts.get_quotes('MSFT')[0]['Last'] # 212.20

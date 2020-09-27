@@ -11,8 +11,8 @@ requests = "*"
 requests-oauthlib = "*"
 pytz = "*"
 python-dateutil = "*"
-requests-html = "*"
 pyotp = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.8"

@@ -12,7 +12,7 @@ This project is nowhere-near completed and is a continual work-in-progress!
   * List account orders
   * List account positions
 * Account transactions API 
-  * Compatible with new 2FA requirements - 21/09/20
+  * Compatible with new 2FA requirements - September 2020
   * Automated scraping of each account's transactions for a given date
 
 ---
@@ -45,20 +45,6 @@ ts = Tradestation(
     client_secret= 'bar',
     username='baz',
     password='hunter2',
-    login_secrets={
-        "What was the make or model of your first car?": {
-            "QuestionId": "99",
-            "SecurityAnswer": "Bugatti Veyron",
-        },
-        "What is your mother's maiden name?": {
-            "QuestionId": "77",
-            "SecurityAnswer": "Smith",
-        },
-        "What is the name of your first pet?": {
-            "QuestionId": "33",
-            "SecurityAnswer": "Rover"
-        }
-    },
     otp_secret='MY32BITSECRET'
 )
 

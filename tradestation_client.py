@@ -160,20 +160,25 @@ class Tradestation:
         options.headless = self.headless
         browser = webdriver.Chrome(options=options)
         client_center = 'https://clientcenter.tradestation.com/'
+        timeout = 30
 
         browser.get(client_center)
-        uname_input = browser.find_element_by_id('username')
+        uname_input = WebDriverWait(browser, timeout).until(
+            EC.presence_of_element_located((By.ID, 'username'))
+        )
         uname_input.send_keys(self.username)
         
-        pwd_input = browser.find_element_by_id('password')
+        pwd_input = WebDriverWait(browser, timeout).until(
+            EC.presence_of_element_located((By.ID, 'password'))
+        )
         pwd_input.send_keys(self.password, Keys.RETURN)
 
-        otp_input = WebDriverWait(browser, 10).until(
+        otp_input = WebDriverWait(browser, timeout).until(
             EC.presence_of_element_located((By.NAME, 'code'))
         )
         otp_input.send_keys(self.generate_otp(), Keys.RETURN)
 
-        WebDriverWait(browser, 60).until(
+        WebDriverWait(browser, timeout*2).until(
             EC.url_contains(client_center)
         )
 

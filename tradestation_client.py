@@ -22,6 +22,7 @@ class Tradestation:
         self.session = Session()
         self.otp_secret = otp_secret
         self.headless = headless
+        self.client_center_url = 'https://clientcenter.tradestation.com'
 
         self.client_id = client_id
         self.client_secret = client_secret
@@ -78,10 +79,15 @@ class Tradestation:
     def get_cash_transactions(self, account, date):
         # Get Cash Transactions (Platform Fees, Transfers etc)
         transactions = []
-        cash_transactions_url = f'https://clientcenter.tradestation.com/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/Cash/{date}/{date}'
-        cash_transactions_params = '?page=1&pageSize=1000&orderBy=TradeDate&sortOrder=Ascending'
+        endpoint = f'/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/Cash/{date}/{date}'
+        params = {
+            'page': 1,
+            'pageSize': 1000,
+            'orderBy': 'TradeDate',
+            'sortOrder': 'Ascending'
+        }
         
-        cash_transactions = self.session.get(cash_transactions_url + cash_transactions_params).json()['Results']
+        cash_transactions = self.session.get(self.client_center_url + endpoint, params=params).json()['Results']
         
         for cash_transaction in cash_transactions:
             if self.include_transaction(cash_transaction):
@@ -95,10 +101,15 @@ class Tradestation:
     def get_fees(self, account, date):
         # Get Fees Summary Per Contract
         transactions = []
-        contracts_url = f'https://clientcenter.tradestation.com/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/Trades/{date}/{date}'
-        contracts_params = '?page=1&pageSize=100&orderBy=ContractDescription&sortOrder=Ascending'
+        endpoint = f'/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/Trades/{date}/{date}'
+        params = {
+            'page': 1,
+            'pageSize': 100,
+            'orderBy': 'ContractDescription',
+            'sortOrder': 'Ascending'
+        }
         
-        contracts_traded = self.session.get(contracts_url + contracts_params).json()['Results']
+        contracts_traded = self.session.get(self.client_center_url + endpoint, params=params).json()['Results']
 
         for contract in contracts_traded:
             contract['AccountId'] = contract['AccountNo']
@@ -117,12 +128,17 @@ class Tradestation:
     def get_purchase_sales(self, account, date):
         # Get Purchase/Sale Information (Positions that were closed within the specified time period)
         transactions = []
-        purchase_sale_url = f'https://clientcenter.tradestation.com/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/PS/{date}/{date}'
-        purchase_sale_params = '?page=1&pageSize=1000&orderBy=ContractDescription&sortOrder=Ascending'
+        endpoint = f'/api/v1/Account/{account["Name"]}/{account["TypeDescription"]}/Trades/PS/{date}/{date}'
+        params = {
+            'page': 1,
+            'pageSize': 1000,
+            'orderBy': 'ContractDescription',
+            'sortOrder': 'Ascending'
+        }
         
-        closed_positions = self.session.get(purchase_sale_url + purchase_sale_params).json()['Results']
+        purchase_sales = self.session.get(self.client_center_url + endpoint, params=params).json()['Results']
 
-        for closed_position in closed_positions:
+        for closed_position in purchase_sales:
             closed_position['TradeDate'] = date
             closed_position['Type'] = 'PURCHASE & SALE'
             closed_position['Description'] = closed_position['Contract'].rstrip()
@@ -159,10 +175,9 @@ class Tradestation:
         options = webdriver.ChromeOptions()
         options.headless = self.headless
         browser = webdriver.Chrome(options=options)
-        client_center = 'https://clientcenter.tradestation.com/'
         timeout = 30
 
-        browser.get(client_center)
+        browser.get(self.client_center_url)
         uname_input = WebDriverWait(browser, timeout).until(
             EC.presence_of_element_located((By.ID, 'username'))
         )
@@ -179,7 +194,7 @@ class Tradestation:
         otp_input.send_keys(self.generate_otp(), Keys.RETURN)
 
         WebDriverWait(browser, timeout*2).until(
-            EC.url_contains(client_center)
+            EC.url_contains(self.client_center_url)
         )
 
         cookies = browser.get_cookies()

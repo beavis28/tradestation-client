@@ -87,7 +87,7 @@ class Tradestation:
             if self.include_transaction(cash_transaction):
                 cash_transaction['AccountId'] = account['Name']
                 cash_transaction['TradeDate'] = date
-                cash_transaction['Type'] = 'Cash Journal'
+                cash_transaction['Type'] = 'CASH JOURNAL'
                 cash_transaction['Description'] = cash_transaction['Description'].rstrip()
                 transactions.append(cash_transaction)
         return transactions
@@ -103,7 +103,7 @@ class Tradestation:
         for contract in contracts_traded:
             contract['AccountId'] = contract['AccountNo']
             contract['TradeDate'] = date
-            contract['Type'] = 'Fees & Commissions'
+            contract['Type'] = 'FEES'
             contract['Description'] = contract['Contract'].rstrip()
             transactions.append(contract)
         return transactions
@@ -124,7 +124,7 @@ class Tradestation:
 
         for closed_position in closed_positions:
             closed_position['TradeDate'] = date
-            closed_position['Type'] = 'Closed Positions'
+            closed_position['Type'] = 'PURCHASE & SALE'
             closed_position['Description'] = closed_position['Contract'].rstrip()
             transactions.append(closed_position)
         return transactions

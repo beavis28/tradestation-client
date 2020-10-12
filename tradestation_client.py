@@ -1,8 +1,11 @@
 import json
 import os.path
 import pyotp
+import pytz
 import time
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from oauthlib.common import to_unicode
 from requests_oauthlib import OAuth2Session
 from requests import Session
@@ -15,14 +18,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Tradestation:
-    
-    def __init__(self, username, password, client_id, client_secret, otp_secret=None, headless=True):
+
+    def __init__(self, username, password, client_id, client_secret, otp_secret=None, cc_login=False, headless=True):
         self.username = username
         self.password = password
         self.session = Session()
         self.otp_secret = otp_secret
-        self.headless = headless
         self.client_center_url = 'https://clientcenter.tradestation.com'
+
+        if cc_login:
+            self.login(headless=headless)
 
         self.client_id = client_id
         self.client_secret = client_secret
@@ -66,6 +71,23 @@ class Tradestation:
             authorization_response=authorization_response, 
             client_secret=self.client_secret
         )
+
+    TS_DATE = datetime.now(pytz.timezone('America/New_York')).date()
+    TS_YESTERDAY = TS_DATE + relativedelta(days=-1)
+
+    def date_range_transactions(self, from_date=TS_YESTERDAY, to_date=TS_YESTERDAY):
+        transactions = []
+        trade_date =  from_date
+
+        while trade_date <= to_date:
+            if trade_date.isoweekday() <= 5:
+                activity = self.get_transactions(trade_date)
+                if len(activity) > 0:
+                    transactions.extend(activity)
+                trade_date += relativedelta(days=1)
+            else:
+                trade_date += relativedelta(days=8 - trade_date.isoweekday())
+        return transactions
     
     def generate_otp(self):
         try:
@@ -171,9 +193,9 @@ class Tradestation:
         description = transaction['Description'].upper()
         return not any(substr in description for substr in exclusions)
 
-    def login(self):
+    def login(self, headless):
         options = webdriver.ChromeOptions()
-        options.headless = self.headless
+        options.headless = headless
         browser = webdriver.Chrome(options=options)
         timeout = 30
 

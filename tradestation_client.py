@@ -94,6 +94,7 @@ class Tradestation:
             pyotp.TOTP(self.otp_secret).now()                
             time_to_refresh = (30 - time.gmtime().tm_sec % 30) + 1
             if time_to_refresh < 3:
+                time.sleep(time_to_refresh)
             return pyotp.TOTP(self.otp_secret).now()
         except TypeError:
             return input("Enter 2FA code from your authenticator app: ").upper()
@@ -116,6 +117,7 @@ class Tradestation:
                 cash_transaction['AccountId'] = account['Name']
                 cash_transaction['TradeDate'] = date
                 cash_transaction['Type'] = 'CASH JOURNAL'
+                cash_transaction['AssetClass'] = account['TypeDescription']
                 cash_transaction['Description'] = cash_transaction['Description'].rstrip()
                 transactions.append(cash_transaction)
         return transactions
@@ -137,6 +139,7 @@ class Tradestation:
             contract['AccountId'] = contract['AccountNo']
             contract['TradeDate'] = date
             contract['Type'] = 'FEES'
+            contract['AssetClass'] = account['TypeDescription']
             contract['Description'] = contract['Contract'].rstrip()
             transactions.append(contract)
         return transactions
@@ -163,6 +166,7 @@ class Tradestation:
         for closed_position in purchase_sales:
             closed_position['TradeDate'] = date
             closed_position['Type'] = 'PURCHASE & SALE'
+            closed_position['AssetClass'] = account['TypeDescription']
             closed_position['Description'] = closed_position['Contract'].rstrip()
             transactions.append(closed_position)
         return transactions

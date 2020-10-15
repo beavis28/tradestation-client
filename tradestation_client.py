@@ -93,7 +93,7 @@ class Tradestation:
         try:
             pyotp.TOTP(self.otp_secret).now()                
             time_to_refresh = (30 - time.gmtime().tm_sec % 30) + 1
-            time.sleep(min(time_to_refresh, 5))
+            if time_to_refresh < 3:
             return pyotp.TOTP(self.otp_secret).now()
         except TypeError:
             return input("Enter 2FA code from your authenticator app: ").upper()
@@ -211,7 +211,7 @@ class Tradestation:
         pwd_input.send_keys(self.password, Keys.RETURN)
 
         otp_input = WebDriverWait(browser, timeout).until(
-            EC.presence_of_element_located((By.NAME, 'code'))
+            EC.element_to_be_clickable((By.NAME, 'code'))
         )
         otp_input.send_keys(self.generate_otp(), Keys.RETURN)
 
